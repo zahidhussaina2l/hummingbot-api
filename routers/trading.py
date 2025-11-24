@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from starlette import status
 
 from deps import get_accounts_service, get_market_data_feed_manager
+from utils.logging_decorator import debug_endpoint
 from models import (
     ActiveOrderFilterRequest,
     FundingPaymentFilterRequest,
@@ -30,6 +31,7 @@ router = APIRouter(tags=["Trading"], prefix="/trading")
 
 # Trade Execution
 @router.post("/orders", response_model=TradeResponse, status_code=status.HTTP_201_CREATED)
+@debug_endpoint
 async def place_trade(
     trade_request: TradeRequest,
     accounts_service: AccountsService = Depends(get_accounts_service),
@@ -85,6 +87,7 @@ async def place_trade(
 
 
 @router.post("/{account_name}/{connector_name}/orders/{client_order_id}/cancel")
+@debug_endpoint
 async def cancel_order(
     account_name: str,
     connector_name: str,
@@ -119,6 +122,7 @@ async def cancel_order(
 
 
 @router.post("/positions", response_model=PaginatedResponse)
+@debug_endpoint
 async def get_positions(filter_request: PositionFilterRequest, accounts_service: AccountsService = Depends(get_accounts_service)):
     """
     Get current positions across all or filtered perpetual connectors.
@@ -206,6 +210,7 @@ async def get_positions(filter_request: PositionFilterRequest, accounts_service:
 
 # Active Orders Management - Real-time from connectors
 @router.post("/orders/active", response_model=PaginatedResponse)
+@debug_endpoint
 async def get_active_orders(
     filter_request: ActiveOrderFilterRequest, accounts_service: AccountsService = Depends(get_accounts_service)
 ):
@@ -303,6 +308,7 @@ async def get_active_orders(
 
 # Historical Order Management - From registry/database
 @router.post("/orders/search", response_model=PaginatedResponse)
+@debug_endpoint
 async def get_orders(filter_request: OrderFilterRequest, accounts_service: AccountsService = Depends(get_accounts_service)):
     """
     Get historical order data across all or filtered accounts from the database/registry.
@@ -400,6 +406,7 @@ async def get_orders(filter_request: OrderFilterRequest, accounts_service: Accou
 
 # Trade History
 @router.post("/trades", response_model=PaginatedResponse)
+@debug_endpoint
 async def get_trades(filter_request: TradeFilterRequest, accounts_service: AccountsService = Depends(get_accounts_service)):
     """
     Get trade history across all or filtered accounts with complex filtering.
@@ -502,6 +509,7 @@ async def get_trades(filter_request: TradeFilterRequest, accounts_service: Accou
 
 
 @router.post("/{account_name}/{connector_name}/position-mode")
+@debug_endpoint
 async def set_position_mode(
     account_name: str,
     connector_name: str,
@@ -564,6 +572,7 @@ async def get_position_mode(
 
 
 @router.post("/{account_name}/{connector_name}/leverage")
+@debug_endpoint
 async def set_leverage(
     account_name: str,
     connector_name: str,
@@ -597,6 +606,7 @@ async def set_leverage(
 
 
 @router.post("/funding-payments", response_model=PaginatedResponse)
+@debug_endpoint
 async def get_funding_payments(
     filter_request: FundingPaymentFilterRequest, accounts_service: AccountsService = Depends(get_accounts_service)
 ):

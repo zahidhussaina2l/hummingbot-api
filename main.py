@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 # Load environment variables early
 load_dotenv()
 
+# Import logging configuration early
+import logging_patch
+
 VERSION = "1.0.1"
 
 # Monkey patch save_to_yml to prevent writes to library directory
@@ -58,13 +61,8 @@ from routers import (
 from config import settings
 
 
-# Set up logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-# Enable debug logging for MQTT manager
+# Logging is now configured by logging_patch.py (imported at top)
+# Additional loggers can be configured here if needed
 logging.getLogger('services.mqtt_manager').setLevel(logging.DEBUG)
 
 

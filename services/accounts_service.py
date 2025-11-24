@@ -17,6 +17,7 @@ from services.gateway_client import GatewayClient
 from services.gateway_transaction_poller import GatewayTransactionPoller
 from utils.connector_manager import ConnectorManager
 from utils.file_system import fs_util
+from utils.logging_decorator import debug_endpoint
 
 # Create module-specific logger
 logger = logging.getLogger(__name__)
@@ -1220,7 +1221,7 @@ class AccountsService:
         except Exception as e:
             logger.error(f"Error getting trades: {e}")
             return []
-
+    @debug_endpoint
     async def get_account_positions(self, account_name: str, connector_name: str) -> List[Dict]:
         """
         Get current positions for a specific perpetual connector.

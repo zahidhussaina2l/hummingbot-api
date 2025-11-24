@@ -19,7 +19,6 @@ dependencies:
   - docker-py
   - pip
   - pip:
-      - hummingbot
       - msgpack>=1.0.5
       - flake8
       - isort
@@ -27,6 +26,7 @@ dependencies:
       - logfire
       - logfire[fastapi]
       - logfire[system-metrics]
+      - paho-mqtt>=2.1.0
       - aiomqtt>=2.0.0
       - sqlalchemy>=2.0.0
       - asyncpg

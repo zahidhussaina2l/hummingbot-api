@@ -3,7 +3,7 @@ FROM continuumio/miniconda3 AS builder
 
 # Install build dependencies
 RUN apt-get update && \
-    apt-get install -y python3-dev gcc && \
+    apt-get install -y python3-dev gcc g++ git && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -12,10 +12,19 @@ WORKDIR /build
 # Copy only the environment file first (for better layer caching)
 COPY environment.yml .
 
-# Create the conda environment
+# Create the conda environment (without hummingbot from pip)
 RUN conda env create -f environment.yml && \
     conda clean -afy && \
     rm -rf /root/.cache/pip/*
+
+# Copy and install local hummingbot source
+COPY hummingbot-source /build/hummingbot-source
+RUN /bin/bash -c "source activate hummingbot-api && \
+    pip install Cython numpy && \
+    cd /build/hummingbot-source && \
+    pip install --no-build-isolation . && \
+    pip install --upgrade 'paho-mqtt>=2.1.0' && \
+    rm -rf /root/.cache/pip/*"
 
 # Stage 2: Runtime stage
 FROM continuumio/miniconda3
@@ -33,7 +42,7 @@ COPY --from=builder /opt/conda/envs/hummingbot-api /opt/conda/envs/hummingbot-ap
 WORKDIR /hummingbot-api
 
 # Copy only necessary application files
-COPY main.py config.py deps.py ./
+COPY main.py logging_patch.py config.py deps.py ./
 COPY models ./models
 COPY routers ./routers
 COPY services ./services
@@ -53,4 +62,4 @@ ENV PATH="/opt/conda/envs/hummingbot-api/bin:$PATH"
 ENV CONDA_DEFAULT_ENV=hummingbot-api
 
 # Run the application
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"]
